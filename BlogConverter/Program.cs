@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,18 +21,23 @@ namespace BlogConverter
             foreach (var entry in entries)
             {
                 var title = entry.Element(ns + "title");
-                var content = entry.Element(ns + "content");
-                Console.WriteLine(title.Value);
-                Console.WriteLine(content);
+
+                var link = entry.Elements(ns + "link").Where(e => e.Attribute("rel").Value == "alternate").FirstOrDefault();
+                if (link == null) continue;
+                string fileName = Path.GetFileNameWithoutExtension(link.Attribute("href").Value);
+                Console.WriteLine(fileName);
+
+                var tags = from category in entry.Elements(ns + "category")
+                           where category.Attribute("scheme").Value.Contains("ns#")
+                           select category.Attribute("term").Value;
+
+                foreach (var tag in tags)
+                {
+                    Console.Write(tag + " ");
+                }
+
+                //entry.Elements(ns + "category").Where(e => e.Attribute("scheme").Value.Contains("ns#")).Select(e=>)
             }
-
-
-            //IEnumerable<XElement> tests =
-            //    from el in root.Elements("Test")
-            //    where (string)el.Element("CommandLine") == "Examp2.EXE"
-            //    select el;
-            //foreach (XElement el in tests)
-            //    Console.WriteLine((string)el.Attribute("TestId"));
         }
     }
 }
