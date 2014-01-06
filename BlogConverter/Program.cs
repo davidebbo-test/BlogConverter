@@ -20,24 +20,45 @@ namespace BlogConverter
                           select entry;
             foreach (var entry in entries)
             {
-                var title = entry.Element(ns + "title");
+                var title = entry.Element(ns + "title").Value;
+                title = FixQuotes(title);
 
                 var link = entry.Elements(ns + "link").Where(e => e.Attribute("rel").Value == "alternate").FirstOrDefault();
                 if (link == null) continue;
                 string fileName = Path.GetFileNameWithoutExtension(link.Attribute("href").Value);
-                Console.WriteLine(fileName);
+                //Console.WriteLine(fileName);
+
+                DateTime publishedDate = DateTime.Parse(entry.Element(ns + "published").Value);
+                string publishedString = publishedDate.ToString("yyyy-MM-dd");
+                //Console.WriteLine(publishedString);
 
                 var tags = from category in entry.Elements(ns + "category")
                            where category.Attribute("scheme").Value.Contains("ns#")
                            select category.Attribute("term").Value;
 
-                foreach (var tag in tags)
-                {
-                    Console.Write(tag + " ");
-                }
+                string tagString = String.Join(" ", tags);
+                Console.WriteLine(tagString);
 
-                //entry.Elements(ns + "category").Where(e => e.Attribute("scheme").Value.Contains("ns#")).Select(e=>)
+                string fullFileName = String.Format("{0}-{1}.markdown", publishedString, fileName);
+                Console.WriteLine(fullFileName);
+
+                string contentTemplate=
+@"---
+layout: post
+title:  ""{0}""
+categories: {1}
+---
+
+Enter content here!
+";
+
+                File.WriteAllText(fullFileName, String.Format(contentTemplate, title, tagString));
             }
+        }
+
+        static string FixQuotes(string s)
+        {
+            return s.Replace('‘', '\'').Replace('’', '\'');
         }
     }
 }
