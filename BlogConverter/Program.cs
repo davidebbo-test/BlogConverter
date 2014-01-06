@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,17 +21,15 @@ namespace BlogConverter
                           select entry;
             foreach (var entry in entries)
             {
-                var title = entry.Element(ns + "title").Value;
-                title = FixQuotes(title);
+                string title = entry.Element(ns + "title").Value;
+                title = Util.FixQuotes(title);
 
                 var link = entry.Elements(ns + "link").Where(e => e.Attribute("rel").Value == "alternate").FirstOrDefault();
                 if (link == null) continue;
                 string fileName = Path.GetFileNameWithoutExtension(link.Attribute("href").Value);
-                //Console.WriteLine(fileName);
 
                 DateTime publishedDate = DateTime.Parse(entry.Element(ns + "published").Value);
                 string publishedString = publishedDate.ToString("yyyy-MM-dd");
-                //Console.WriteLine(publishedString);
 
                 var tags = from category in entry.Elements(ns + "category")
                            where category.Attribute("scheme").Value.Contains("ns#")
@@ -38,6 +37,11 @@ namespace BlogConverter
 
                 string tagString = String.Join(" ", tags);
                 Console.WriteLine(tagString);
+
+                string content = entry.Element(ns + "content").Value;
+
+                var converter = new HtmlToMarkDownConverter(content);
+                string markDown = converter.Convert();
 
                 string fullFileName = String.Format("{0}-{1}.markdown", publishedString, fileName);
                 Console.WriteLine(fullFileName);
@@ -49,16 +53,11 @@ title:  ""{0}""
 categories: {1}
 ---
 
-Enter content here!
+{2}
 ";
 
-                File.WriteAllText(fullFileName, String.Format(contentTemplate, title, tagString));
+                File.WriteAllText(fullFileName, String.Format(contentTemplate, title, tagString, markDown));
             }
-        }
-
-        static string FixQuotes(string s)
-        {
-            return s.Replace('‘', '\'').Replace('’', '\'');
         }
     }
 }
