@@ -50,6 +50,7 @@ namespace BlogConverter
 @"---
 layout: post
 title:  ""{0}""
+comments: true
 categories: {1}
 ---
 
