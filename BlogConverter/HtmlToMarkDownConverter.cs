@@ -118,6 +118,7 @@ namespace BlogConverter
                             string text = node.InnerText;
                             text = text.Replace("&nbsp;", "");
                             text = text.Replace("&gt;", ">");
+                            text = text.Replace("&lt;", "<");
                             if (!String.IsNullOrWhiteSpace(node.InnerText))
                             {
                                 _sb.Append(text);
