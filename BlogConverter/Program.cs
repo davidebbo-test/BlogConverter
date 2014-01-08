@@ -35,7 +35,7 @@ namespace BlogConverter
                            where category.Attribute("scheme").Value.Contains("ns#")
                            select category.Attribute("term").Value;
 
-                string tagString = String.Join(" ", tags);
+                string tagString = "[" + String.Join(",", tags) + "]";
                 Console.WriteLine(tagString);
 
                 string content = entry.Element(ns + "content").Value;
