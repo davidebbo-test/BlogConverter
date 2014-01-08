@@ -56,7 +56,7 @@ namespace BlogConverter
 
                     case "h3":
                         _sb.AppendLine();
-                        _sb.Append("### ");
+                        _sb.Append("## ");
                         ProcessNodes(node.ChildNodes);
                         _sb.AppendLine();
                         break;
